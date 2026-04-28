@@ -4,11 +4,12 @@ A client-only timezone conversion application for instant, accurate time compari
 
 ## Features
 
-- **Dual Mode**: Live "now" dashboard and "selected time" conversion tool
+- **Dual Mode**: Live "now" dashboard with auto-updating clock and "selected time" conversion tool
 - **Timezone Comparison**: Compare time across multiple timezones simultaneously
+- **Live Updating**: Real-time clock updates every second in the dashboard
 - **Keyboard Shortcuts**: Use arrow up/down to adjust time by ±1 hour
 - **Day Boundary Indicators**: Shows "+1 day" or "-1 day" when crossing midnight
-- **Timezone Presets**: Quick-select common timezone groups
+- **Timezone Presets**: Quick-select common timezone groups (US, Europe, Asia)
 - **Copy to Clipboard**: One-click copy of converted times
 - **Swap Zones**: Quickly swap source and target timezones
 - **Persistence**: Remembers your timezone selections via localStorage

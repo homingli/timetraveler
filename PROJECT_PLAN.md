@@ -21,12 +21,12 @@ Phase 2: Refinement
 [ ] Write rigorous unit tests for timezone logic and DST edge cases
 [x] Add UI polish: Swap controls, copy-to-clipboard, timezone search/presets, and day boundary indicators
 [x] Add keyboard shortcut: arrow up/down for moving an hour up or down
-[ ] Finalize documentation and deployment configuration for Vercel
+[/] Finalize documentation and deployment configuration for Vercel
 
 Current Execution Status
-Current Task: Finalizing Phase 2 UI polish and preparing for testing.
+Current Task: Updating documentation (PROJECT_PLAN.md, README.md) and preparing for Vercel deployment.
 
-Recent accomplishment: Added day boundary indicators (+1 day/-1 day) when timezone crosses midnight. Added keyboard shortcuts (arrow up/down) for hour adjustment. Implemented localStorage persistence, swap controls, copy-to-clipboard, timezone presets, and live updating.
+Recent accomplishment: Completed Phase 2 UI polish including day boundary indicators, keyboard shortcuts, localStorage persistence, swap controls, copy-to-clipboard, timezone presets, and live updating.
 
 Blocked By: None.
 

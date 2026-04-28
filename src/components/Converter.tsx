@@ -60,7 +60,7 @@ export const Converter = () => {
           const converted = convertTimezone(baseTime, zone);
           const timeStr = formatTime(converted);
           const hourOffset = getHourOffset(baseTime, zone);
-          const offsetStr = hourOffset >= 0 ? `+${hourOffset}h` : `${hourOffset}h`;
+          const offsetDisplay = hourOffset >= 0 ? `GMT+${hourOffset}:00` : `GMT-${Math.abs(hourOffset)}:00`;
           return (
             <div key={zone} className="card group relative overflow-hidden">
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -87,31 +87,27 @@ export const Converter = () => {
                 </button>
               </div>
 
-              <div className="flex items-baseline gap-2">
-                <div className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+              <div className="w-full flex justify-center items-center gap-3">
+                <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                   {zone.split('/').pop()?.replace('_', ' ')}
-                </div>
-                <div className="text-xs font-medium text-brand">
-                  {offsetStr}
-                </div>
+                </span>
+                <span className="text-xs font-medium text-brand">{offsetDisplay}</span>
+                {(() => {
+                  const baseDay = baseTime.toISODate();
+                  const targetDay = converted.toISODate();
+                  if (baseDay && targetDay && baseDay !== targetDay) {
+                    const isNextDay = targetDay > baseDay;
+                    return (
+                      <span className="text-xs text-brand font-bold">{isNextDay ? '+1d' : '-1d'}</span>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
-              <div className="text-3xl font-mono font-bold text-foreground">
+              <div className="text-5xl font-mono font-bold text-foreground text-center w-full">
                 {timeStr}
               </div>
-              {(() => {
-                const baseDay = baseTime.toISODate();
-                const targetDay = converted.toISODate();
-                if (baseDay && targetDay && baseDay !== targetDay) {
-                  const isNextDay = targetDay > baseDay;
-                  return (
-                    <div className="text-xs text-brand font-bold mt-1">
-                      {isNextDay ? '+1 day' : '-1 day'}
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-              <div className="text-xs text-gray-400 mt-1">
+              <div className="text-xs text-gray-400 mt-1 text-center">
                 {zone}
               </div>
             </div>

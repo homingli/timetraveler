@@ -1,32 +1,39 @@
-# Time Traveler Tool
+# Time Traveler
 
-Welcome to your vibecoding workspace. This repository acts as the "living context" for your conversational AI coding assistants (e.g. Claude, Gemini).
+A client-only timezone conversion application for instant, accurate time comparisons across global timezones. Built with Next.js, React, TypeScript, and Tailwind CSS.
 
-To effectively "vibecode", the AI needs persistent context. Instead of hoping the model remembers everything during a long session, we explicitly manage its long-term memory through these markdown files.
+## Features
 
-## How to Start a Session
+- **Dual Mode**: Live "now" dashboard and "selected time" conversion tool
+- **Timezone Comparison**: Compare time across multiple timezones simultaneously
+- **Keyboard Shortcuts**: Use arrow up/down to adjust time by ±1 hour
+- **Day Boundary Indicators**: Shows "+1 day" or "-1 day" when crossing midnight
+- **Timezone Presets**: Quick-select common timezone groups
+- **Copy to Clipboard**: One-click copy of converted times
+- **Swap Zones**: Quickly swap source and target timezones
+- **Persistence**: Remembers your timezone selections via localStorage
 
-At the start of every new chat session, attach the following files to your initial prompt:
-1. `PROJECT_PLAN.md` to establish what the system is and what we are working on today.
-2. `DEBUG_LOG.md` to prevent the AI from repeating past mistakes.
-3. `AGENTS.md` to reference the specific behavior you want from the given agent.
+## Tech Stack
 
-In your prompt, write something like:
-> "Read the attached project plan and debug log. I would like to work on task X as defined in the roadmap."
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript
+- **Styling:** Tailwind CSS v4
+- **Time Handling:** Luxon
+- **Icons:** Lucide React
 
-## Harness Directory Structure
+## Getting Started
 
-*   **`PROJECT_PLAN.md`:** The living memory of our goals, roadmaps, and the current task in progress.
-*   **`DEBUG_LOG.md`:** A log of failed attempts, common gotchas, and specific behaviors that the AI struggles with and shouldn't repeat.
-*   **`AGENTS.md`:** Reference sheet for how to prompt different agents (e.g., Claude vs. Gemini) for different tasks.
-*   **`rules/`**
-    *   `architecture.md`: Generic rules dictating project structure and patterns.
-    *   `style-guide.md`: Generic styling rules, naming conventions, and testing requirements.
+```bash
+npm install
+npm run dev
+```
 
-## Tech Stack (Generic)
-* **Frontend:** [TBD]
-* **Backend:** [TBD]
-* **Database:** [TBD]
-* **Deployment:** [TBD]
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-*Note: Update the generic stack above once your architecture is fully defined.*
+## Deployment
+
+Deploy to Vercel with zero configuration:
+
+```bash
+npm run build
+vercel
+```

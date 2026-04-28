@@ -1,7 +1,7 @@
 'use client';
 
 import { useTimeContext } from '@/hooks/useTimeContext';
-import { formatTime, convertTimezone } from '@/lib/timeUtils';
+import { formatTime, convertTimezone, getHourOffset } from '@/lib/timeUtils';
 import { Globe, X, Plus, Copy, Check, ArrowLeftRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -67,6 +67,8 @@ export const Converter = () => {
         {mounted && targetZones.map((zone) => {
           const converted = convertTimezone(baseTime, zone);
           const timeStr = formatTime(converted);
+          const hourOffset = getHourOffset(baseTime, zone);
+          const offsetStr = hourOffset >= 0 ? `+${hourOffset}h` : `${hourOffset}h`;
           return (
             <div key={zone} className="card group relative overflow-hidden">
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -93,8 +95,13 @@ export const Converter = () => {
                 </button>
               </div>
 
-              <div className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
-                {zone.split('/').pop()?.replace('_', ' ')}
+              <div className="flex items-baseline gap-2">
+                <div className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                  {zone.split('/').pop()?.replace('_', ' ')}
+                </div>
+                <div className="text-xs font-medium text-brand">
+                  {offsetStr}
+                </div>
               </div>
               <div className="text-3xl font-mono font-bold text-foreground">
                 {timeStr}

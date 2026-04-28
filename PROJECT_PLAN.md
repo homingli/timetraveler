@@ -14,19 +14,19 @@ Use [x] for finished items, [/] for items currently being worked on, and [ ] for
 Phase 1: MVP Core
 [x] Define basic architectural foundations (update rules/architecture.md when done)
 [x] Set up project skeleton (Next.js/React/TypeScript/Tailwind)
-[/] Implement core feature: "Selected time" conversion engine
-[ ] Use localStorage to store preset timezone locations
+[x] Implement core feature: "Selected time" conversion engine
+[x] Use localStorage to store preset timezone locations
 
 Phase 2: Refinement
-[/] Write rigorous unit tests for timezone logic and DST edge cases
-[/] Add UI polish: Swap controls, copy-to-clipboard, and timezone search/presets
-[ ] Add keyboard shortcut: arrow up/down for moving an hour up or down
-[ ] Finalize documentation strings and deployment configuration for Vercel
+[ ] Write rigorous unit tests for timezone logic and DST edge cases
+[x] Add UI polish: Swap controls, copy-to-clipboard, timezone search/presets, and day boundary indicators
+[x] Add keyboard shortcut: arrow up/down for moving an hour up or down
+[ ] Finalize documentation and deployment configuration for Vercel
 
 Current Execution Status
-Current Task: Implement UI polish (Phase 2) and refine the conversion engine.
+Current Task: Finalizing Phase 2 UI polish and preparing for testing.
 
-Recent accomplishment: Initialized the Next.js project with Tailwind v4, implemented core TimeContext, and built the live Clock and initial Converter dashboard.
+Recent accomplishment: Added day boundary indicators (+1 day/-1 day) when timezone crosses midnight. Added keyboard shortcuts (arrow up/down) for hour adjustment. Implemented localStorage persistence, swap controls, copy-to-clipboard, timezone presets, and live updating.
 
 Blocked By: None.
 

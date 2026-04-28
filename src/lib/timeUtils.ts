@@ -69,3 +69,12 @@ export const toFullISO = (dt: DateTime): string => {
 export const toShareableString = (dt: DateTime): string => {
   return dt.toFormat('cccc, LLLL d, yyyy HH:mm (ZZZZ)');
 };
+
+/**
+ * Calculates the hour offset between two timezones.
+ */
+export const getHourOffset = (baseTime: DateTime, targetZone: string): number => {
+  const targetTime = baseTime.setZone(targetZone);
+  const offsetDiff = (targetTime.offset - baseTime.offset) / 60;
+  return offsetDiff;
+};

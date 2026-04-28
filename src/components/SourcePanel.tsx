@@ -3,13 +3,14 @@
 import { useTimeContext } from '@/hooks/useTimeContext';
 import { toHTMLInput, fromHTMLInput } from '@/lib/timeUtils';
 import { Calendar, MapPin, RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { DateTime } from 'luxon';
 
 export const SourcePanel = () => {
   const { baseTime, setBaseTime, baseZone, setBaseZone, setIsLive, isLive, now } = useTimeContext();
   const [mounted, setMounted] = useState(false);
   const [timezones, setTimezones] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -17,6 +18,24 @@ export const SourcePanel = () => {
       setTimezones((Intl as any).supportedValuesOf('timeZone'));
     }
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement !== inputRef.current) return;
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setIsLive(false);
+        setBaseTime(baseTime.plus({ hours: 1 }));
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setIsLive(false);
+        setBaseTime(baseTime.minus({ hours: 1 }));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [baseTime, setBaseTime, setIsLive]);
 
   if (!mounted) return <div className="card h-48 animate-pulse" />;
 
@@ -48,10 +67,17 @@ export const SourcePanel = () => {
   return (
     <div className="card space-y-6 border-brand">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-bold text-brand flex items-center gap-2">
-          <Calendar size={20} />
-          Source Time
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-bold text-brand flex items-center gap-2">
+            <Calendar size={20} />
+            Source Time
+          </h2>
+          {isLive && (
+            <span className="text-[10px] text-brand font-bold animate-pulse">
+              LIVE UPDATING
+            </span>
+          )}
+        </div>
         <button 
           onClick={handleSync}
           className={`btn-primary text-xs flex items-center gap-1 ${isLive ? 'opacity-50' : ''}`}
@@ -68,6 +94,7 @@ export const SourcePanel = () => {
             Date & Time
           </label>
           <input 
+            ref={inputRef}
             type="datetime-local" 
             className="input-field w-full font-mono text-lg"
             value={toHTMLInput(baseTime)}
@@ -96,11 +123,7 @@ export const SourcePanel = () => {
         </div>
       </div>
       
-      {isLive && (
-        <div className="text-[10px] text-brand font-bold animate-pulse text-right">
-          LIVE UPDATING
-        </div>
-      )}
+      
     </div>
   );
 };

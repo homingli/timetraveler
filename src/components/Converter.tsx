@@ -4,19 +4,20 @@ import { useTimeContext } from '@/hooks/useTimeContext';
 import { formatTime, convertTimezone, getHourOffset } from '@/lib/timeUtils';
 import { X, Plus, Copy, Check, ArrowLeftRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { TimezoneInput } from './TimezoneInput';
 
 export const Converter = () => {
   const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, isLive, setIsLive } = useTimeContext();
   const [newZone, setNewZone] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [timezones, setTimezones] = useState<string[]>([]);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [availableZones, setAvailableZones] = useState<string[]>([]);
 
   useEffect(() => {
     setMounted(true);
     if (typeof Intl !== 'undefined' && (Intl as any).supportedValuesOf) {
-      setAvailableZones((Intl as any).supportedValuesOf('timeZone'));
+      setTimezones((Intl as any).supportedValuesOf('timeZone'));
     }
   }, []);
 
@@ -28,10 +29,9 @@ export const Converter = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleAddZone = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newZone) {
-      addTargetZone(newZone);
+  const handleAddZone = (zone: string) => {
+    if (zone) {
+      addTargetZone(zone);
       setNewZone('');
     }
   };
@@ -123,22 +123,17 @@ export const Converter = () => {
 
 
         
-        <form onSubmit={handleAddZone} className="card border-dashed flex items-center gap-2 p-4">
+        <div className="card border-dashed flex items-center gap-2 p-4">
           <Plus size={20} className="text-brand flex-shrink-0" />
-          <select
-            className="bg-transparent flex-grow outline-none text-sm cursor-pointer appearance-none"
+          <TimezoneInput
             value={newZone}
-            onChange={(e) => setNewZone(e.target.value)}
-          >
-            <option value="">Select a timezone to add...</option>
-            {availableZones.map(zone => (
-              <option key={zone} value={zone}>{zone}</option>
-            ))}
-          </select>
-          <button type="submit" className="text-brand font-bold text-sm disabled:opacity-30" disabled={!newZone}>
-            Add
-          </button>
-        </form>
+            onChange={setNewZone}
+            onSelect={handleAddZone}
+            timezones={timezones}
+            placeholder="Search timezone to add..."
+            className="flex-1"
+          />
+        </div>
 
       </div>
 

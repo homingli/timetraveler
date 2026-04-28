@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Time Traveler Tool
 
-## Getting Started
+Welcome to your vibecoding workspace. This repository acts as the "living context" for your conversational AI coding assistants (e.g. Claude, Gemini).
 
-First, run the development server:
+To effectively "vibecode", the AI needs persistent context. Instead of hoping the model remembers everything during a long session, we explicitly manage its long-term memory through these markdown files.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## How to Start a Session
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+At the start of every new chat session, attach the following files to your initial prompt:
+1. `PROJECT_PLAN.md` to establish what the system is and what we are working on today.
+2. `DEBUG_LOG.md` to prevent the AI from repeating past mistakes.
+3. `AGENTS.md` to reference the specific behavior you want from the given agent.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+In your prompt, write something like:
+> "Read the attached project plan and debug log. I would like to work on task X as defined in the roadmap."
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Harness Directory Structure
 
-## Learn More
+*   **`PROJECT_PLAN.md`:** The living memory of our goals, roadmaps, and the current task in progress.
+*   **`DEBUG_LOG.md`:** A log of failed attempts, common gotchas, and specific behaviors that the AI struggles with and shouldn't repeat.
+*   **`AGENTS.md`:** Reference sheet for how to prompt different agents (e.g., Claude vs. Gemini) for different tasks.
+*   **`rules/`**
+    *   `architecture.md`: Generic rules dictating project structure and patterns.
+    *   `style-guide.md`: Generic styling rules, naming conventions, and testing requirements.
 
-To learn more about Next.js, take a look at the following resources:
+## Tech Stack (Generic)
+* **Frontend:** [TBD]
+* **Backend:** [TBD]
+* **Database:** [TBD]
+* **Deployment:** [TBD]
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Note: Update the generic stack above once your architecture is fully defined.*

@@ -7,14 +7,6 @@ export default function Home() {
         <Converter />
       </section>
 
-      <section className="bg-brand-muted/50 p-6 rounded-xl border border-brand/10 text-sm text-gray-600">
-        <h3 className="font-bold text-brand mb-2">How it works</h3>
-        <p>
-          Set the <strong>Source Time</strong> in the header above.
-          Timetraveler will instantly convert that specific moment across all your saved locations.
-          Use <strong>Sync to Now</strong> to quickly jump back to the current live time.
-        </p>
-      </section>
     </div>
   );
 }

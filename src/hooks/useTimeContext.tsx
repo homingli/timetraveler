@@ -13,6 +13,7 @@ interface TimeContextType {
   targetZones: string[];
   addTargetZone: (zone: string) => void;
   removeTargetZone: (zone: string) => void;
+  reorderTargetZones: (startIndex: number, endIndex: number) => void;
   isLive: boolean;
   setIsLive: (live: boolean) => void;
 }
@@ -75,6 +76,15 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
     setTargetZones(targetZones.filter((z) => z !== zone));
   };
 
+  const reorderTargetZones = (startIndex: number, endIndex: number) => {
+    setTargetZones((prev) => {
+      const result = Array.from(prev);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return result;
+    });
+  };
+
   return (
     <TimeContext.Provider
       value={{
@@ -86,6 +96,7 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
         targetZones,
         addTargetZone,
         removeTargetZone,
+        reorderTargetZones,
         isLive,
         setIsLive,
       }}

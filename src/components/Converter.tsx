@@ -2,7 +2,7 @@
 
 import { useTimeContext } from '@/hooks/useTimeContext';
 import { formatTime, convertTimezone, getHourOffset } from '@/lib/timeUtils';
-import { Globe, X, Plus, Copy, Check, ArrowLeftRight } from 'lucide-react';
+import { X, Plus, Copy, Check, ArrowLeftRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export const Converter = () => {
@@ -55,15 +55,7 @@ export const Converter = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center px-2">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Globe size={20} className="text-brand" />
-          Timezone Comparisons
-        </h2>
-      </div>
-
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {mounted && targetZones.map((zone) => {
           const converted = convertTimezone(baseTime, zone);
           const timeStr = formatTime(converted);
@@ -109,7 +101,7 @@ export const Converter = () => {
               {(() => {
                 const baseDay = baseTime.toISODate();
                 const targetDay = converted.toISODate();
-                if (baseDay !== targetDay) {
+                if (baseDay && targetDay && baseDay !== targetDay) {
                   const isNextDay = targetDay > baseDay;
                   return (
                     <div className="text-xs text-brand font-bold mt-1">

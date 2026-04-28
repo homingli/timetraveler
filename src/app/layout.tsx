@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SourcePanel } from '@/components/SourcePanel';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TimeProvider } from "@/hooks/useTimeContext";
@@ -28,18 +29,16 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <TimeProvider>
           <div className="min-h-screen flex flex-col">
-            <header className="border-b border-[var(--border)] py-4 bg-[var(--card-bg)] sticky top-0 z-10">
-              <div className="container mx-auto px-4 flex justify-between items-center">
-                <h1 className="text-xl font-bold text-brand tracking-tight flex items-center gap-2">
-                  <span className="bg-brand text-white p-1 rounded">TT</span>
+            <header className="border-b border-[var(--border)] bg-[var(--card-bg)] sticky top-0 z-10">
+              <div className="px-4 py-3 flex items-center gap-4 overflow-x-auto">
+                <h1 className="text-xl font-bold text-brand flex items-center gap-2 whitespace-nowrap">
+                  <span className="bg-brand text-white px-1.5 py-0.5 rounded text-sm">TT</span>
                   Timetraveler
                 </h1>
-                <nav className="text-sm text-gray-500 font-medium">
-                  Client-Only Time Engine
-                </nav>
+                <SourcePanel />
               </div>
             </header>
-            <main className="flex-grow mx-auto px-4 py-8 w-full max-w-[80%]">
+            <main className="flex-grow px-4 py-6">
               {children}
             </main>
             <footer className="py-8 border-t border-[var(--border)] text-center text-sm text-gray-500">

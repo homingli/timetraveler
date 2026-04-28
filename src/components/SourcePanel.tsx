@@ -1,43 +1,20 @@
 'use client';
 
 import { useTimeContext } from '@/hooks/useTimeContext';
-import { toHTMLInput, fromHTMLInput } from '@/lib/timeUtils';
-import { Calendar, MapPin, RefreshCw } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
-import { DateTime } from 'luxon';
+import { fromHTMLInput } from '@/lib/timeUtils';
+import { useEffect, useState } from 'react';
 
 export const SourcePanel = () => {
   const { baseTime, setBaseTime, baseZone, setBaseZone, setIsLive, isLive, now } = useTimeContext();
   const [mounted, setMounted] = useState(false);
   const [timezones, setTimezones] = useState<string[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
     if (typeof Intl !== 'undefined' && (Intl as any).supportedValuesOf) {
       setTimezones((Intl as any).supportedValuesOf('timeZone'));
     }
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement !== inputRef.current) return;
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setIsLive(false);
-        setBaseTime(baseTime.plus({ hours: 1 }));
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setIsLive(false);
-        setBaseTime(baseTime.minus({ hours: 1 }));
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [baseTime, setBaseTime, setIsLive]);
-
-  if (!mounted) return <div className="card h-48 animate-pulse" />;
+}, []);
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsLive(false);
@@ -67,64 +44,39 @@ export const SourcePanel = () => {
   };
 
   return (
-    <div className="card space-y-6 border-brand">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-bold text-brand flex items-center gap-2">
-            <Calendar size={20} />
-            Source Time
-          </h2>
-          {isLive && (
-            <span className="text-[10px] text-brand font-bold animate-pulse">
-              LIVE UPDATING
-            </span>
-          )}
-        </div>
-        <button 
-          onClick={handleSync}
-          className={`btn-primary text-xs flex items-center gap-1 ${isLive ? 'opacity-50' : ''}`}
-          disabled={isLive}
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-2">
+        <select 
+          className="input-field font-sans text-sm appearance-none cursor-pointer bg-transparent border-0"
+          value={baseZone}
+          onChange={handleZoneChange}
         >
-          <RefreshCw size={14} className={isLive ? 'animate-spin' : ''} />
-          Sync to Now
-        </button>
+          {timezones.length > 0 ? (
+            timezones.map(zone => (
+              <option key={zone} value={zone}>{zone}</option>
+            ))
+          ) : (
+            <option value={baseZone}>{baseZone}</option>
+          )}
+        </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
-            <MapPin size={12} />
-            Source Timezone
-          </label>
-          <select 
-            className="input-field w-full font-sans appearance-none cursor-pointer"
-            value={baseZone}
-            onChange={handleZoneChange}
-          >
-            {timezones.length > 0 ? (
-              timezones.map(zone => (
-                <option key={zone} value={zone}>{zone}</option>
-              ))
-            ) : (
-              <option value={baseZone}>{baseZone}</option>
-            )}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
-            Time
-          </label>
-          <input 
-            type="time" 
-            className="input-field w-full font-mono text-lg"
-            value={baseTime.toFormat("HH:mm")}
-            onChange={handleTimeChange}
-          />
-        </div>
+      <div className="flex items-center gap-2">
+        <input 
+          type="time" 
+          className="input-field font-mono text-sm bg-transparent border-0 p-0"
+          value={baseTime.toFormat("HH:mm")}
+          onChange={handleTimeChange}
+        />
       </div>
       
-      
+      <button 
+        onClick={handleSync}
+        className={`text-xs text-brand hover:underline ${isLive ? 'opacity-50' : ''}`}
+        disabled={isLive}
+      >
+        {isLive ? 'LIVE' : 'Sync'}
+      </button>
     </div>
   );
 };

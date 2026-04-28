@@ -2,7 +2,7 @@
 
 import { useTimeContext } from '@/hooks/useTimeContext';
 import { formatTime, convertTimezone, getHourOffset } from '@/lib/timeUtils';
-import { X, Plus, Copy, Check, ArrowLeftRight } from 'lucide-react';
+import { X, Plus, Copy, Check, ArrowLeftRight, Shuffle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export const Converter = () => {
@@ -10,8 +10,8 @@ export const Converter = () => {
   const [newZone, setNewZone] = useState('');
   const [mounted, setMounted] = useState(false);
 
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [availableZones, setAvailableZones] = useState<string[]>([]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -19,7 +19,6 @@ export const Converter = () => {
       setAvailableZones((Intl as any).supportedValuesOf('timeZone'));
     }
   }, []);
-
 
 
   const handleCopy = (text: string, id: string) => {
@@ -43,15 +42,39 @@ export const Converter = () => {
     setBaseTime(converted);
   };
 
-  const PRESETS = [
-    { name: 'Standard Tech', zones: ['UTC', 'America/Los_Angeles', 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Asia/Hong_Kong'] },
-    { name: 'US Coast-to-Coast', zones: ['America/Los_Angeles', 'America/Denver', 'America/Chicago', 'America/New_York'] },
-    { name: 'Europe Hubs', zones: ['Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Istanbul'] },
+  const MAJOR_CITIES = [
+    { city: 'New York', zone: 'America/New_York' },
+    { city: 'Los Angeles', zone: 'America/Los_Angeles' },
+    { city: 'London', zone: 'Europe/London' },
+    { city: 'Paris', zone: 'Europe/Paris' },
+    { city: 'Berlin', zone: 'Europe/Berlin' },
+    { city: 'Moscow', zone: 'Europe/Moscow' },
+    { city: 'Dubai', zone: 'Asia/Dubai' },
+    { city: 'Tokyo', zone: 'Asia/Tokyo' },
+    { city: 'Beijing', zone: 'Asia/Shanghai' },
+    { city: 'Sydney', zone: 'Australia/Sydney' },
+    { city: 'Singapore', zone: 'Asia/Singapore' },
+    { city: 'Mumbai', zone: 'Asia/Kolkata' },
+    { city: 'Toronto', zone: 'America/Toronto' },
+    { city: 'Mexico City', zone: 'America/Mexico_City' },
+    { city: 'Buenos Aires', zone: 'America/Buenos_Aires' },
+    { city: 'Johannesburg', zone: 'Africa/Johannesburg' },
   ];
+  const CITIES_DISPLAY_COUNT_DEFAULT = 8;
+  const [citiesDisplay, setCitiesDisplay] = useState<{ city: string; zone: string }[]>([]);
 
-  const handleApplyPreset = (zones: string[]) => {
-    zones.forEach(zone => addTargetZone(zone));
+  const shuffleCities = () => {
+    const shuffled = MAJOR_CITIES
+      .slice()
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(CITIES_DISPLAY_COUNT_DEFAULT, MAJOR_CITIES.length))
+      .map(c => ({ city: c.city, zone: c.zone }));
+    setCitiesDisplay(shuffled);
   };
+
+  useEffect(() => {
+    shuffleCities();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -143,17 +166,25 @@ export const Converter = () => {
       </div>
 
       <div className="pt-8 border-t border-[var(--border)]">
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Quick Presets</h3>
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Major Cities</h3>
         <div className="flex flex-wrap gap-2">
-          {PRESETS.map(preset => (
+          {citiesDisplay.map(c => (
             <button
-              key={preset.name}
-              onClick={() => handleApplyPreset(preset.zones)}
-              className="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:border-brand hover:text-brand transition-colors text-gray-500 font-medium bg-[var(--card-bg)]"
+              key={c.zone}
+              onClick={() => addTargetZone(c.zone)}
+              disabled={targetZones.includes(c.zone)}
+              className="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:border-brand hover:text-brand transition-colors font-medium bg-[var(--card-bg)] disabled:opacity-30 disabled:hover:border-[var(--border)] disabled:hover:text-gray-500"
             >
-              {preset.name}
+              {c.city}
             </button>
           ))}
+          <button
+            onClick={shuffleCities}
+            aria-label="Shuffle cities"
+            className="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:border-brand hover:text-brand transition-colors text-gray-500 font-medium bg-[var(--card-bg)]"
+          >
+            <Shuffle size={14} />
+          </button>
         </div>
       </div>
     </div>

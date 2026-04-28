@@ -11,7 +11,6 @@ export const Converter = () => {
   const [newZone, setNewZone] = useState('');
   const [mounted, setMounted] = useState(false);
   const [timezones, setTimezones] = useState<string[]>([]);
-
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {

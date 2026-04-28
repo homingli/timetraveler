@@ -41,7 +41,9 @@ export const SourcePanel = () => {
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsLive(false);
-    const newDt = fromHTMLInput(e.target.value, baseZone);
+    const newTime = e.target.value; // "HH:mm" format
+    const [hours, minutes] = newTime.split(':').map(Number);
+    const newDt = baseTime.set({ hour: hours, minute: minutes });
     if (newDt.isValid) {
       setBaseTime(newDt);
     }
@@ -91,21 +93,8 @@ export const SourcePanel = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
-            Date & Time
-          </label>
-          <input 
-            ref={inputRef}
-            type="datetime-local" 
-            className="input-field w-full font-mono text-lg"
-            value={toHTMLInput(baseTime)}
-            onChange={handleTimeChange}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
             <MapPin size={12} />
-            Timezone
+            Source Timezone
           </label>
           <select 
             className="input-field w-full font-sans appearance-none cursor-pointer"
@@ -120,6 +109,18 @@ export const SourcePanel = () => {
               <option value={baseZone}>{baseZone}</option>
             )}
           </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+            Time
+          </label>
+          <input 
+            type="time" 
+            className="input-field w-full font-mono text-lg"
+            value={baseTime.toFormat("HH:mm")}
+            onChange={handleTimeChange}
+          />
         </div>
       </div>
       

@@ -39,7 +39,7 @@ export default function RootLayout({
                 </nav>
               </div>
             </header>
-            <main className="flex-grow container mx-auto px-4 py-8">
+            <main className="flex-grow mx-auto px-4 py-8 w-full max-w-[80%]">
               {children}
             </main>
             <footer className="py-8 border-t border-[var(--border)] text-center text-sm text-gray-500">

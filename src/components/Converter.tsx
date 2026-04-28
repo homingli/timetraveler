@@ -10,7 +10,7 @@ export const Converter = () => {
   const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, isLive, setIsLive } = useTimeContext();
   const [newZone, setNewZone] = useState('');
   const [mounted, setMounted] = useState(false);
-  const [availableZones, setAvailableZones] = useState<string[]>([]);
+  const [timezones, setTimezones] = useState<string[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {

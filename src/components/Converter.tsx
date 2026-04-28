@@ -50,7 +50,7 @@ export const Converter = () => {
     { city: 'Moscow', zone: 'Europe/Moscow' },
     { city: 'Dubai', zone: 'Asia/Dubai' },
     { city: 'Tokyo', zone: 'Asia/Tokyo' },
-    { city: 'Beijing', zone: 'Asia/Shanghai' },
+    { city: 'Shanghai', zone: 'Asia/Shanghai' },
     { city: 'Sydney', zone: 'Australia/Sydney' },
     { city: 'Singapore', zone: 'Asia/Singapore' },
     { city: 'Mumbai', zone: 'Asia/Kolkata' },
@@ -58,6 +58,8 @@ export const Converter = () => {
     { city: 'Mexico City', zone: 'America/Mexico_City' },
     { city: 'Buenos Aires', zone: 'America/Buenos_Aires' },
     { city: 'Johannesburg', zone: 'Africa/Johannesburg' },
+    { city: 'Hong Kong', zone: 'Asia/Hong_Kong' },
+    { city: 'Taipei', zone: 'Asia/Taipei' },
   ];
   const CITIES_DISPLAY_COUNT_DEFAULT = 8;
   const [citiesDisplay, setCitiesDisplay] = useState<{ city: string; zone: string }[]>([]);
@@ -144,7 +146,7 @@ export const Converter = () => {
         })}
 
 
-        
+
         <div className="card border-dashed flex items-center gap-2 p-4">
           <Plus size={20} className="text-brand flex-shrink-0" />
           <TimezoneInput

@@ -106,6 +106,19 @@ export const Converter = () => {
               <div className="text-3xl font-mono font-bold text-foreground">
                 {timeStr}
               </div>
+              {(() => {
+                const baseDay = baseTime.toISODate();
+                const targetDay = converted.toISODate();
+                if (baseDay !== targetDay) {
+                  const isNextDay = targetDay > baseDay;
+                  return (
+                    <div className="text-xs text-brand font-bold mt-1">
+                      {isNextDay ? '+1 day' : '-1 day'}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
               <div className="text-xs text-gray-400 mt-1">
                 {zone}
               </div>

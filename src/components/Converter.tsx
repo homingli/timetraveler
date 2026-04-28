@@ -16,7 +16,11 @@ export const Converter = () => {
   useEffect(() => {
     setMounted(true);
     if (typeof Intl !== 'undefined' && (Intl as any).supportedValuesOf) {
-      setTimezones((Intl as any).supportedValuesOf('timeZone'));
+      const tzList = (Intl as any).supportedValuesOf('timeZone');
+      if (!tzList.includes('UTC')) {
+        tzList.unshift('UTC');
+      }
+      setTimezones(tzList);
     }
   }, []);
 
@@ -89,7 +93,7 @@ export const Converter = () => {
           const gmtStr = gmtOffset >= 0 ? `+${gmtOffset}` : `${gmtOffset}`;
           return (
             <div key={zone} className="card group relative overflow-hidden">
-              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 flex gap-1 transition-opacity">
                 <button
                   onClick={() => handleSwap(zone)}
                   className="p-1 text-gray-400 hover:text-brand transition-colors"

@@ -13,7 +13,11 @@ export const SourcePanel = () => {
   useEffect(() => {
     setMounted(true);
     if (typeof Intl !== 'undefined' && (Intl as any).supportedValuesOf) {
-      setTimezones((Intl as any).supportedValuesOf('timeZone'));
+      const tzList = (Intl as any).supportedValuesOf('timeZone');
+      if (!tzList.includes('UTC')) {
+        tzList.unshift('UTC');
+      }
+      setTimezones(tzList);
     }
   }, []);
 

@@ -1,28 +1,19 @@
-# AI Agents Guide & System Prompts
+# AI Agents Guide
 
-This project utilizes several models, including **Gemini** (Google), and **Minimax** (Minimax), each with specific profiles and standard operating procedures. When starting a thread, reference the profile below.
+Agents: **Gemini** (Architect/Researcher), **Minimax** (Refactoring Engine).
 
-## Agent Profiles
+## Gemini
+- High-level planning, web research, architecture
+- Use for: "Determine best stack," "Audit security," "Draft architecture"
 
-### Gemini (Architect & Researcher)
-- **Role:** High-level project planning, web research, documentation generation, and architectural design. 
-- **Strengths:** Rapid information retrieval from the web, vast context window for analyzing entire codebases at once, structuring complex projects.
-- **When to Use:** "Determine the best tech stack for X," "Audit this entire repository for security flaws," "Draft an architecture plan based on web best practices."
+## Minimax
+- Refactoring, bug fixing, dense implementation
+- Use for: "Refactor to follow style," "Find race condition"
 
-### Minimax (The Refactoring Engine)
-- **Role:** Granular logic refactoring, complex bug fixing, and writing dense implementation code.
-- **Strengths:** Sustained focus on difficult algorithms, strict adherence to complex stylistic or structural guidelines.
-- **When to Use:** "Refactor this large file to follow the style guide perfectly," "Find the race condition in this state management logic."
+## Pre-Prompts
 
-## Standard Pre-Prompts
+**Feature Implementation (Gemini):** "Review `PROJECT_PLAN.md` and `rules/`. Provide step-by-step plan before coding."
 
-Copy these prompts into the chat box when initiating a new thread.
+**Architecture Planning (Gemini):** "Review `PROJECT_PLAN.md`. Research best practices and draft update to `rules/architecture.md`."
 
-### Starting a Feature Implementation (Gemini)
-> **Prompt:** "You are an expert engineer. I am providing you with the `PROJECT_PLAN.md` to understand our goals and the `rules/` directory to understand our standards. We are implementing [Feature X]. Review the files and provide your initial step-by-step implementation plan before writing any code."
-
-### Technical Research / Architecture Planning (Gemini)
-> **Prompt:** "You are a lead architect. Review `PROJECT_PLAN.md` to understand our core product. We need to decide how to handle [System Need]. Search the web for current best practices, analyze the trade-offs, and draft an update to our `rules/architecture.md`."
-
-### Stuck in a Bug / Restarting Context (Either)
-> **Prompt:** "We have encountered a persistent bug. Review `DEBUG_LOG.md` to see what we have already tried and why it failed. Analyze the provided state, and propose an entirely new approach that does not overlap with our failed attempts."
+**Bug/Restart (Either):** "Review `DEBUG_LOG.md`. Analyze failed attempts and propose new approach."

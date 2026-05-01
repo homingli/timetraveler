@@ -4,19 +4,18 @@ import { useHydrated } from '@/hooks/useHydrated';
 import { useTimeContext } from '@/hooks/useTimeContext';
 import { getSupportedTimezones } from '@/lib/timezones';
 import { fromHTMLInput } from '@/lib/timeUtils';
-import { useMemo } from 'react';
+import { useMemo, type ChangeEvent } from 'react';
 import { TimezoneInput } from './TimezoneInput';
 
 export const SourcePanel = () => {
-  const { baseTime, setBaseTime, baseZone, setBaseZone, setIsLive, isLive, now } = useTimeContext();
+  const { baseTime, setBaseTime, baseZone, setBaseZone, setIsLive, isLive, now, showSeconds } = useTimeContext();
   const isHydrated = useHydrated();
   const timezones = useMemo(() => getSupportedTimezones(), []);
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setIsLive(false);
-    const newTime = e.target.value; // "HH:mm" format
-    const [hours, minutes] = newTime.split(':').map(Number);
-    const newDt = baseTime.set({ hour: hours, minute: minutes });
+    const [hours, minutes, seconds = 0] = e.target.value.split(':').map(Number);
+    const newDt = baseTime.set({ hour: hours, minute: minutes, second: seconds });
     if (newDt.isValid) {
       setBaseTime(newDt);
     }
@@ -53,7 +52,8 @@ export const SourcePanel = () => {
         <input 
           type="time" 
           className="input-field font-mono text-sm bg-transparent border-0 p-0"
-          value={baseTime.toFormat("HH:mm")}
+          step={showSeconds ? 1 : 60}
+          value={baseTime.toFormat(showSeconds ? 'HH:mm:ss' : 'HH:mm')}
           onChange={handleTimeChange}
         />
       </div>

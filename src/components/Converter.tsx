@@ -28,6 +28,7 @@ import { CSS } from '@dnd-kit/utilities';
 interface SortableCardProps {
   zone: string;
   baseTime: DateTime;
+  showSeconds: boolean;
   copiedId: string | null;
   onSwap: (zone: string) => void;
   onCopy: (timeStr: string, zone: string) => void;
@@ -68,7 +69,7 @@ const getRandomCities = () => {
   return shuffledCities.slice(0, CITIES_DISPLAY_COUNT_DEFAULT);
 };
 
-const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove }: SortableCardProps) => {
+const SortableCard = memo(({ zone, baseTime, showSeconds, copiedId, onSwap, onCopy, onRemove }: SortableCardProps) => {
   const {
     attributes,
     listeners,
@@ -86,7 +87,7 @@ const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove 
   };
 
   const converted = convertTimezone(baseTime, zone);
-  const timeStr = formatTime(converted);
+  const timeStr = formatTime(converted, showSeconds ? 'HH:mm:ss' : 'HH:mm');
   const hourOffset = getHourOffset(baseTime, zone);
   const offsetStr = hourOffset >= 0 ? `+${hourOffset}h` : `${hourOffset}h`;
   const gmtOffset = Math.round(converted.offset / 60);
@@ -98,6 +99,8 @@ const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove 
       style={style}
       {...attributes}
       {...listeners}
+      data-testid="timezone-card"
+      data-zone={zone}
       className="card group relative overflow-hidden cursor-grab active:cursor-grabbing"
     >
       <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
@@ -105,6 +108,7 @@ const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove 
           onClick={(e) => { e.stopPropagation(); onSwap(zone); }}
           className="p-1 text-gray-400 hover:text-brand transition-colors"
           title="Swap with Source"
+          aria-label={`Swap ${zone} with source timezone`}
         >
           <ArrowLeftRight size={14} />
         </button>
@@ -112,6 +116,7 @@ const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove 
           onClick={(e) => { e.stopPropagation(); onCopy(timeStr, zone); }}
           className="p-1 text-gray-400 hover:text-brand transition-colors"
           title="Copy time"
+          aria-label={`Copy time for ${zone}`}
         >
           {copiedId === zone ? <Check size={14} className="text-brand" /> : <Copy size={14} />}
         </button>
@@ -119,6 +124,7 @@ const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove 
           onClick={(e) => { e.stopPropagation(); onRemove(zone); }}
           className="p-1 text-gray-400 hover:text-red-500 transition-colors"
           title="Remove location"
+          aria-label={`Remove ${zone}`}
         >
           <X size={14} />
         </button>
@@ -159,7 +165,7 @@ const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove 
 SortableCard.displayName = 'SortableCard';
 
 export const Converter = () => {
-  const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, reorderTargetZones, setIsLive } = useTimeContext();
+  const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, reorderTargetZones, setIsLive, showSeconds } = useTimeContext();
   const isHydrated = useHydrated();
   const [newZone, setNewZone] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -227,12 +233,13 @@ export const Converter = () => {
           items={targetZones}
           strategy={verticalListSortingStrategy}
         >
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div data-testid="timezone-list" className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {targetZones.map((zone) => (
               <SortableCard
                 key={zone}
                 zone={zone}
                 baseTime={baseTime}
+                showSeconds={showSeconds}
                 copiedId={copiedId}
                 onSwap={handleSwap}
                 onCopy={handleCopy}
@@ -270,6 +277,7 @@ export const Converter = () => {
           <button
             onClick={shuffleCities}
             aria-label="Shuffle cities"
+            title="Shuffle cities"
             className="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:border-brand hover:text-brand transition-colors text-gray-500 font-medium bg-[var(--card-bg)]"
           >
             <Shuffle size={14} />

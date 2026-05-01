@@ -15,8 +15,10 @@ import { getSystemTimezone } from '@/lib/timeUtils';
 
 const TARGET_ZONES_STORAGE_KEY = 'timetraveler_zones';
 const BASE_ZONE_STORAGE_KEY = 'timetraveler_base_zone';
+const SHOW_SECONDS_STORAGE_KEY = 'timetraveler_show_seconds';
 const DEFAULT_TARGET_ZONES = ['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo'];
 const STORAGE_EVENT_PREFIX = 'timetraveler-storage';
+const DEFAULT_SHOW_SECONDS = true;
 
 let cachedTargetZonesRaw: string | null = null;
 let cachedTargetZones = DEFAULT_TARGET_ZONES;
@@ -33,6 +35,9 @@ interface TimeContextType {
   reorderTargetZones: (startIndex: number, endIndex: number) => void;
   isLive: boolean;
   setIsLive: (live: boolean) => void;
+  showSeconds: boolean;
+  setShowSeconds: (showSeconds: boolean) => void;
+  toggleShowSeconds: () => void;
 }
 
 const TimeContext = createContext<TimeContextType | undefined>(undefined);
@@ -68,6 +73,10 @@ const subscribeToTargetZones = (onStoreChange: () => void) => {
 
 const subscribeToBaseZone = (onStoreChange: () => void) => {
   return subscribeToLocalStorageKey(BASE_ZONE_STORAGE_KEY, onStoreChange);
+};
+
+const subscribeToShowSeconds = (onStoreChange: () => void) => {
+  return subscribeToLocalStorageKey(SHOW_SECONDS_STORAGE_KEY, onStoreChange);
 };
 
 const getStoredTargetZones = () => {
@@ -107,6 +116,19 @@ const getStoredBaseZone = () => {
   return window.localStorage.getItem(BASE_ZONE_STORAGE_KEY) || getSystemTimezone();
 };
 
+const getStoredShowSeconds = () => {
+  if (typeof window === 'undefined') {
+    return DEFAULT_SHOW_SECONDS;
+  }
+
+  const storedValue = window.localStorage.getItem(SHOW_SECONDS_STORAGE_KEY);
+  if (storedValue === null) {
+    return DEFAULT_SHOW_SECONDS;
+  }
+
+  return storedValue === 'true';
+};
+
 const setStoredTargetZones = (zones: string[]) => {
   const serializedZones = JSON.stringify(zones);
   cachedTargetZonesRaw = serializedZones;
@@ -118,6 +140,11 @@ const setStoredTargetZones = (zones: string[]) => {
 const setStoredBaseZone = (zone: string) => {
   window.localStorage.setItem(BASE_ZONE_STORAGE_KEY, zone);
   notifyLocalStorageSubscribers(BASE_ZONE_STORAGE_KEY);
+};
+
+const setStoredShowSeconds = (showSeconds: boolean) => {
+  window.localStorage.setItem(SHOW_SECONDS_STORAGE_KEY, String(showSeconds));
+  notifyLocalStorageSubscribers(SHOW_SECONDS_STORAGE_KEY);
 };
 
 export const TimeProvider = ({ children }: { children: ReactNode }) => {
@@ -137,6 +164,12 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
     getSystemTimezone
   );
 
+  const showSeconds = useSyncExternalStore(
+    subscribeToShowSeconds,
+    getStoredShowSeconds,
+    () => DEFAULT_SHOW_SECONDS
+  );
+
   useEffect(() => {
     const interval = setInterval(() => {
       const current = DateTime.now();
@@ -151,6 +184,14 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
 
   const setBaseZone = useCallback((zone: string) => {
     setStoredBaseZone(zone);
+  }, []);
+
+  const setShowSeconds = useCallback((nextShowSeconds: boolean) => {
+    setStoredShowSeconds(nextShowSeconds);
+  }, []);
+
+  const toggleShowSeconds = useCallback(() => {
+    setStoredShowSeconds(!getStoredShowSeconds());
   }, []);
 
   const addTargetZone = useCallback((zone: string) => {
@@ -189,6 +230,9 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
       reorderTargetZones,
       isLive,
       setIsLive,
+      showSeconds,
+      setShowSeconds,
+      toggleShowSeconds,
     }),
     [
       now,
@@ -200,6 +244,9 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
       removeTargetZone,
       reorderTargetZones,
       isLive,
+      showSeconds,
+      setShowSeconds,
+      toggleShowSeconds,
     ]
   );
 

@@ -23,15 +23,17 @@ Phase 2: Refinement
 [x] Finalize documentation and deployment configuration for Vercel
 
 Phase 3: Enhancement
-[ ] Add light/dark mode, add toggle for theme changes
 [x] PWA support for offline use
 [x] Optimize client state, timezone lookup, and hydration behavior
-[ ] Write rigorous unit tests for timezone logic and DST edge cases
+[x] Add light/dark mode, add toggle for theme changes
+[x] Toggle for showing/hiding seconds
+[x] Write rigorous unit tests for timezone logic and DST edge cases
+[x] Write test cases to ensure the drag and drop works on desktop and mobile
 
 Current Execution Status
-Current Task: Phase 3 remains open for theme toggle and timezone/DST tests. Mobile drag-and-drop validation is complete.
+Current Task: Phase 3 implementation is complete.
 
-Recent accomplishment: Validated mobile card reordering in the in-app browser at a 653px viewport: dragging UTC below New York updated the order, then the original order was restored. Previously: Optimized the timezone app while maintaining behavior: centralized browser timezone discovery, memoized repeated calculations and handlers, improved localStorage-backed state subscriptions, fixed the Next.js hydration mismatch caused by live clock rendering, and verified lint/build plus clean browser console reload.
+Recent accomplishment: Added a system/light/dark theme toggle, a persisted show/hide seconds control, rigorous Vitest coverage for timezone and DST edge cases, and Playwright E2E drag-and-drop coverage for desktop and mobile layouts. Verified lint, unit tests, E2E tests, and production build.
 
 Blocked By: None.
 

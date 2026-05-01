@@ -29,14 +29,20 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
 
   // Persistence
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    console.log('TimeProvider: Initializing from localStorage');
     const savedZones = localStorage.getItem('timetraveler_zones');
     const savedBaseZone = localStorage.getItem('timetraveler_base_zone');
     
-    if (savedZones) {
+    if (savedZones && savedZones.trim() !== '') {
       try {
-        setTargetZones(JSON.parse(savedZones));
+        const parsed = JSON.parse(savedZones);
+        if (Array.isArray(parsed)) {
+          setTargetZones(parsed);
+        }
       } catch (e) {
-        console.error('Failed to load saved timezones', e);
+        console.error('Failed to parse saved timezones', e);
       }
     }
     

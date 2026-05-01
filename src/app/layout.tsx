@@ -17,6 +17,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Timetraveler | Modern Timezone Converter",
   description: "Instant, accurate timezone comparisons for global teams.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Timetraveler",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    apple: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
+};
+
+export const viewport = {
+  themeColor: "#228B22",
 };
 
 export default function RootLayout({

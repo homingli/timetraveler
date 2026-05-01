@@ -24,13 +24,13 @@ Phase 2: Refinement
 
 Phase 3: Enhancement
 [ ] Add light/dark mode, add toggle for theme changes
-[ ] PWA support for offline use
+[x] PWA support for offline use
 [ ] Write rigorous unit tests for timezone logic and DST edge cases
 
 Current Execution Status
-Current Task: Completed Phase 2. Ready for Phase 3 features or community feedback.
+Current Task: Partially completed Phase 3. PWA support added. Ready for remaining Phase 3 features (Theming and Tests).
 
-Recent accomplishment: Added drag-and-drop reordering, searchable timezone input, random major city buttons, inline GMT offsets, mobile card actions optimization, and ensured UTC-first ordering.
+Recent accomplishment: Added PWA support for offline use with Serwist, generated minimalist app icons, and configured manifest for standalone mobile experience. Previously: Added drag-and-drop reordering, searchable timezone input, random major city buttons, inline GMT offsets, and mobile card actions optimization.
 
 Blocked By: None.
 

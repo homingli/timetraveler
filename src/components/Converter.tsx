@@ -174,10 +174,14 @@ export const Converter = () => {
   const timezones = useMemo(() => getSupportedTimezones(), []);
   const targetZoneSet = useMemo(() => new Set(targetZones), [targetZones]);
 
-  const handleCopy = useCallback((text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleCopy = useCallback(async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   }, []);
 
   const handleAddZone = useCallback((zone: string) => {

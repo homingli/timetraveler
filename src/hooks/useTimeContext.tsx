@@ -13,6 +13,14 @@ import React, {
 import { DateTime } from 'luxon';
 import { getSystemTimezone } from '@/lib/timeUtils';
 
+const isValidTimezone = (zone: string): boolean => {
+  try {
+    return DateTime.now().setZone(zone).isValid;
+  } catch {
+    return false;
+  }
+};
+
 const TARGET_ZONES_STORAGE_KEY = 'timetraveler_zones';
 const BASE_ZONE_STORAGE_KEY = 'timetraveler_base_zone';
 const SHOW_SECONDS_STORAGE_KEY = 'timetraveler_show_seconds';
@@ -84,25 +92,31 @@ const getStoredTargetZones = () => {
     return DEFAULT_TARGET_ZONES;
   }
 
-  const savedZones = window.localStorage.getItem(TARGET_ZONES_STORAGE_KEY);
-  if (!savedZones || savedZones.trim() === '') {
+  try {
+    const savedZones = window.localStorage.getItem(TARGET_ZONES_STORAGE_KEY);
+    if (!savedZones || savedZones.trim() === '') {
+      cachedTargetZonesRaw = savedZones;
+      cachedTargetZones = DEFAULT_TARGET_ZONES;
+      return DEFAULT_TARGET_ZONES;
+    }
+
+    if (savedZones === cachedTargetZonesRaw) {
+      return cachedTargetZones;
+    }
+
+    const parsed = JSON.parse(savedZones);
+    if (isStringArray(parsed)) {
+      const validZones = parsed.filter(isValidTimezone);
+      cachedTargetZonesRaw = savedZones;
+      cachedTargetZones = validZones.length > 0 ? validZones : DEFAULT_TARGET_ZONES;
+      return cachedTargetZones;
+    }
+
     cachedTargetZonesRaw = savedZones;
     cachedTargetZones = DEFAULT_TARGET_ZONES;
     return DEFAULT_TARGET_ZONES;
-  }
-
-  if (savedZones === cachedTargetZonesRaw) {
-    return cachedTargetZones;
-  }
-
-  try {
-    const parsed = JSON.parse(savedZones);
-    cachedTargetZonesRaw = savedZones;
-    cachedTargetZones = isStringArray(parsed) ? parsed : DEFAULT_TARGET_ZONES;
-    return cachedTargetZones;
   } catch (error) {
-    console.error('Failed to parse saved timezones', error);
-    cachedTargetZonesRaw = savedZones;
+    console.error('Failed to parse or read saved timezones', error);
     cachedTargetZones = DEFAULT_TARGET_ZONES;
     return DEFAULT_TARGET_ZONES;
   }
@@ -113,7 +127,15 @@ const getStoredBaseZone = () => {
     return getSystemTimezone();
   }
 
-  return window.localStorage.getItem(BASE_ZONE_STORAGE_KEY) || getSystemTimezone();
+  try {
+    const stored = window.localStorage.getItem(BASE_ZONE_STORAGE_KEY);
+    if (stored && isValidTimezone(stored)) {
+      return stored;
+    }
+  } catch (error) {
+    console.error('Failed to read base zone', error);
+  }
+  return getSystemTimezone();
 };
 
 const getStoredShowSeconds = () => {
@@ -121,30 +143,46 @@ const getStoredShowSeconds = () => {
     return DEFAULT_SHOW_SECONDS;
   }
 
-  const storedValue = window.localStorage.getItem(SHOW_SECONDS_STORAGE_KEY);
-  if (storedValue === null) {
+  try {
+    const storedValue = window.localStorage.getItem(SHOW_SECONDS_STORAGE_KEY);
+    if (storedValue === null) {
+      return DEFAULT_SHOW_SECONDS;
+    }
+    return storedValue === 'true';
+  } catch (error) {
+    console.error('Failed to read show seconds preference', error);
     return DEFAULT_SHOW_SECONDS;
   }
-
-  return storedValue === 'true';
 };
 
 const setStoredTargetZones = (zones: string[]) => {
-  const serializedZones = JSON.stringify(zones);
-  cachedTargetZonesRaw = serializedZones;
-  cachedTargetZones = zones;
-  window.localStorage.setItem(TARGET_ZONES_STORAGE_KEY, serializedZones);
-  notifyLocalStorageSubscribers(TARGET_ZONES_STORAGE_KEY);
+  try {
+    const serializedZones = JSON.stringify(zones);
+    cachedTargetZonesRaw = serializedZones;
+    cachedTargetZones = zones;
+    window.localStorage.setItem(TARGET_ZONES_STORAGE_KEY, serializedZones);
+    notifyLocalStorageSubscribers(TARGET_ZONES_STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to save target zones', error);
+  }
 };
 
 const setStoredBaseZone = (zone: string) => {
-  window.localStorage.setItem(BASE_ZONE_STORAGE_KEY, zone);
-  notifyLocalStorageSubscribers(BASE_ZONE_STORAGE_KEY);
+  try {
+    window.localStorage.setItem(BASE_ZONE_STORAGE_KEY, zone);
+    notifyLocalStorageSubscribers(BASE_ZONE_STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to save base zone', error);
+  }
 };
 
 const setStoredShowSeconds = (showSeconds: boolean) => {
-  window.localStorage.setItem(SHOW_SECONDS_STORAGE_KEY, String(showSeconds));
-  notifyLocalStorageSubscribers(SHOW_SECONDS_STORAGE_KEY);
+  try {
+    window.localStorage.setItem(SHOW_SECONDS_STORAGE_KEY, String(showSeconds));
+    notifyLocalStorageSubscribers(SHOW_SECONDS_STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to save show seconds preference', error);
+  }
 };
 
 export const TimeProvider = ({ children }: { children: ReactNode }) => {

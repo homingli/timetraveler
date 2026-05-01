@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { SourcePanel } from '@/components/SourcePanel';
+import { AppProviders } from '@/components/AppProviders';
+import { HeaderControls } from '@/components/HeaderControls';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { TimeProvider } from "@/hooks/useTimeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,9 +44,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <TimeProvider>
+        <AppProviders>
           <div className="min-h-screen flex flex-col">
             <header className="border-b border-[var(--border)] bg-[var(--card-bg)] sticky top-0 z-10">
               <div className="px-4 py-3 flex items-center gap-4 overflow-x-auto">
@@ -54,6 +55,9 @@ export default function RootLayout({
                   Timetraveler
                 </h1>
                 <SourcePanel />
+                <div className="ml-auto">
+                  <HeaderControls />
+                </div>
               </div>
             </header>
             <main className="flex-grow px-4 py-6">
@@ -63,7 +67,7 @@ export default function RootLayout({
               © {new Date().getFullYear()} Timetraveler. Minimalist Time Utility.
             </footer>
           </div>
-        </TimeProvider>
+        </AppProviders>
       </body>
     </html>
   );

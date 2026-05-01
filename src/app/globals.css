@@ -6,7 +6,10 @@
   --brand: #228B22; /* ForestGreen */
   --brand-muted: #e8f5e9;
   --card-bg: #ffffff;
+  --control-bg: #f6f8f6;
+  --hover: #f1f7f1;
   --border: #e0e0e0;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -16,15 +19,16 @@
   --color-brand-muted: var(--brand-muted);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #121212;
-    --foreground: #f0f0f0;
-    --brand: #2e7d32;
-    --brand-muted: #1b301b;
-    --card-bg: #1e1e1e;
-    --border: #333333;
-  }
+.dark {
+  --background: #121212;
+  --foreground: #f0f0f0;
+  --brand: #43a047;
+  --brand-muted: #1b301b;
+  --card-bg: #1e1e1e;
+  --control-bg: #171717;
+  --hover: #263326;
+  --border: #333333;
+  color-scheme: dark;
 }
 
 body {
@@ -67,4 +71,30 @@ body {
 
 .input-field:focus {
   border-color: var(--brand);
+}
+
+.icon-button {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  color: #6b7280;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.icon-button:hover {
+  background: var(--hover);
+  color: var(--brand);
+}
+
+.icon-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--brand-muted), 0 0 0 4px var(--brand);
+}
+
+.icon-button-active {
+  background: var(--brand-muted);
+  color: var(--brand);
 }

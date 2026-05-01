@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface TimezoneInputProps {
@@ -18,17 +18,34 @@ export const TimezoneInput = ({ value, onChange, timezones, placeholder = 'Searc
   const inputRef = useRef<HTMLInputElement>(null);
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
-  const filteredZones = timezones.filter(zone => 
-    zone.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredZones = useMemo(() => {
+    const normalizedFilter = filter.trim().toLowerCase();
+    const matchingZones = normalizedFilter
+      ? timezones.filter((zone) => zone.toLowerCase().includes(normalizedFilter))
+      : timezones;
 
-  const handleSelect = (zone: string) => {
+    return matchingZones.slice(0, 100);
+  }, [filter, timezones]);
+
+  const filteredZoneCount = useMemo(() => {
+    const normalizedFilter = filter.trim().toLowerCase();
+
+    if (!normalizedFilter) {
+      return timezones.length;
+    }
+
+    return timezones.reduce((count, zone) => {
+      return zone.toLowerCase().includes(normalizedFilter) ? count + 1 : count;
+    }, 0);
+  }, [filter, timezones]);
+
+  const handleSelect = useCallback((zone: string) => {
     onChange(zone);
     setFilter('');
     setIsOpen(false);
     inputRef.current?.blur();
     if (onSelect) onSelect(zone);
-  };
+  }, [onChange, onSelect]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -66,7 +83,7 @@ export const TimezoneInput = ({ value, onChange, timezones, placeholder = 'Searc
           className="max-h-60 overflow-y-auto bg-[var(--card-bg)] border border-[var(--border)] rounded-lg shadow-lg"
           style={dropdownStyle}
         >
-          {filteredZones.slice(0, 100).map(zone => (
+          {filteredZones.map(zone => (
             <button
               key={zone}
               className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--hover)] transition-colors"
@@ -78,9 +95,9 @@ export const TimezoneInput = ({ value, onChange, timezones, placeholder = 'Searc
               {zone}
             </button>
           ))}
-          {filteredZones.length > 100 && (
+          {filteredZoneCount > filteredZones.length && (
             <div className="px-3 py-2 text-xs text-gray-400">
-              Showing 100 of {filteredZones.length} results
+              Showing {filteredZones.length} of {filteredZoneCount} results
             </div>
           )}
         </div>,

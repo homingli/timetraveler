@@ -1,9 +1,11 @@
 'use client';
 
 import { useTimeContext } from '@/hooks/useTimeContext';
+import { useHydrated } from '@/hooks/useHydrated';
+import { getSupportedTimezones } from '@/lib/timezones';
 import { formatTime, convertTimezone, getHourOffset } from '@/lib/timeUtils';
 import { X, Plus, Copy, Check, ArrowLeftRight, Shuffle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { memo, useCallback, useMemo, useState, type CSSProperties } from 'react';
 import { DateTime } from 'luxon';
 import { TimezoneInput } from './TimezoneInput';
 import {
@@ -32,7 +34,41 @@ interface SortableCardProps {
   onRemove: (zone: string) => void;
 }
 
-const SortableCard = ({ zone, baseTime, copiedId, onSwap, onCopy, onRemove }: SortableCardProps) => {
+const MAJOR_CITIES = [
+  { city: 'New York', zone: 'America/New_York' },
+  { city: 'Los Angeles', zone: 'America/Los_Angeles' },
+  { city: 'London', zone: 'Europe/London' },
+  { city: 'Paris', zone: 'Europe/Paris' },
+  { city: 'Berlin', zone: 'Europe/Berlin' },
+  { city: 'Moscow', zone: 'Europe/Moscow' },
+  { city: 'Dubai', zone: 'Asia/Dubai' },
+  { city: 'Tokyo', zone: 'Asia/Tokyo' },
+  { city: 'Shanghai', zone: 'Asia/Shanghai' },
+  { city: 'Sydney', zone: 'Australia/Sydney' },
+  { city: 'Singapore', zone: 'Asia/Singapore' },
+  { city: 'Mumbai', zone: 'Asia/Kolkata' },
+  { city: 'Toronto', zone: 'America/Toronto' },
+  { city: 'Mexico City', zone: 'America/Mexico_City' },
+  { city: 'Buenos Aires', zone: 'America/Buenos_Aires' },
+  { city: 'Johannesburg', zone: 'Africa/Johannesburg' },
+  { city: 'Hong Kong', zone: 'Asia/Hong_Kong' },
+  { city: 'Taipei', zone: 'Asia/Taipei' },
+];
+
+const CITIES_DISPLAY_COUNT_DEFAULT = 8;
+
+const getRandomCities = () => {
+  const shuffledCities = [...MAJOR_CITIES];
+
+  for (let index = shuffledCities.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledCities[index], shuffledCities[randomIndex]] = [shuffledCities[randomIndex], shuffledCities[index]];
+  }
+
+  return shuffledCities.slice(0, CITIES_DISPLAY_COUNT_DEFAULT);
+};
+
+const SortableCard = memo(({ zone, baseTime, copiedId, onSwap, onCopy, onRemove }: SortableCardProps) => {
   const {
     attributes,
     listeners,
@@ -42,11 +78,11 @@ const SortableCard = ({ zone, baseTime, copiedId, onSwap, onCopy, onRemove }: So
     isDragging,
   } = useSortable({ id: zone });
 
-  const style = {
+  const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 999 : 'auto' as any,
+    zIndex: isDragging ? 999 : undefined,
   };
 
   const converted = convertTimezone(baseTime, zone);
@@ -118,81 +154,42 @@ const SortableCard = ({ zone, baseTime, copiedId, onSwap, onCopy, onRemove }: So
       </div>
     </div>
   );
-};
+});
+
+SortableCard.displayName = 'SortableCard';
 
 export const Converter = () => {
-  const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, reorderTargetZones, isLive, setIsLive } = useTimeContext();
+  const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, reorderTargetZones, setIsLive } = useTimeContext();
+  const isHydrated = useHydrated();
   const [newZone, setNewZone] = useState('');
-  const [mounted, setMounted] = useState(false);
-  const [timezones, setTimezones] = useState<string[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [citiesDisplay, setCitiesDisplay] = useState(MAJOR_CITIES.slice(0, CITIES_DISPLAY_COUNT_DEFAULT));
 
-  useEffect(() => {
-    setMounted(true);
-    if (typeof Intl !== 'undefined' && (Intl as any).supportedValuesOf) {
-      const tzList = (Intl as any).supportedValuesOf('timeZone');
-      if (!tzList.includes('UTC')) {
-        tzList.unshift('UTC');
-      }
-      setTimezones(tzList);
-    }
-  }, []);
+  const timezones = useMemo(() => getSupportedTimezones(), []);
+  const targetZoneSet = useMemo(() => new Set(targetZones), [targetZones]);
 
-
-  const handleCopy = (text: string, id: string) => {
+  const handleCopy = useCallback((text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
+  }, []);
 
-  const handleAddZone = (zone: string) => {
+  const handleAddZone = useCallback((zone: string) => {
     if (zone) {
       addTargetZone(zone);
       setNewZone('');
     }
-  };
+  }, [addTargetZone]);
 
-  const handleSwap = (zone: string) => {
+  const handleSwap = useCallback((zone: string) => {
     setIsLive(false);
     const converted = convertTimezone(baseTime, zone);
     setBaseZone(zone);
     setBaseTime(converted);
-  };
+  }, [baseTime, setBaseTime, setBaseZone, setIsLive]);
 
-  const MAJOR_CITIES = [
-    { city: 'New York', zone: 'America/New_York' },
-    { city: 'Los Angeles', zone: 'America/Los_Angeles' },
-    { city: 'London', zone: 'Europe/London' },
-    { city: 'Paris', zone: 'Europe/Paris' },
-    { city: 'Berlin', zone: 'Europe/Berlin' },
-    { city: 'Moscow', zone: 'Europe/Moscow' },
-    { city: 'Dubai', zone: 'Asia/Dubai' },
-    { city: 'Tokyo', zone: 'Asia/Tokyo' },
-    { city: 'Shanghai', zone: 'Asia/Shanghai' },
-    { city: 'Sydney', zone: 'Australia/Sydney' },
-    { city: 'Singapore', zone: 'Asia/Singapore' },
-    { city: 'Mumbai', zone: 'Asia/Kolkata' },
-    { city: 'Toronto', zone: 'America/Toronto' },
-    { city: 'Mexico City', zone: 'America/Mexico_City' },
-    { city: 'Buenos Aires', zone: 'America/Buenos_Aires' },
-    { city: 'Johannesburg', zone: 'Africa/Johannesburg' },
-    { city: 'Hong Kong', zone: 'Asia/Hong_Kong' },
-    { city: 'Taipei', zone: 'Asia/Taipei' },
-  ];
-  const CITIES_DISPLAY_COUNT_DEFAULT = 8;
-  const [citiesDisplay, setCitiesDisplay] = useState<{ city: string; zone: string }[]>([]);
-
-  const shuffleCities = () => {
-    const shuffled = MAJOR_CITIES
-      .slice()
-      .sort(() => Math.random() - 0.5)
-      .slice(0, Math.min(CITIES_DISPLAY_COUNT_DEFAULT, MAJOR_CITIES.length))
-      .map(c => ({ city: c.city, zone: c.zone }));
-    setCitiesDisplay(shuffled);
-  };
-
-  useEffect(() => {
-    shuffleCities();
+  const shuffleCities = useCallback(() => {
+    setCitiesDisplay(getRandomCities());
   }, []);
 
   const sensors = useSensors(
@@ -206,14 +203,18 @@ export const Converter = () => {
     })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = targetZones.indexOf(active.id as string);
       const newIndex = targetZones.indexOf(over.id as string);
       reorderTargetZones(oldIndex, newIndex);
     }
-  };
+  }, [reorderTargetZones, targetZones]);
+
+  if (!isHydrated) {
+    return <div className="space-y-6" />;
+  }
 
   return (
     <div className="space-y-6">
@@ -227,7 +228,7 @@ export const Converter = () => {
           strategy={verticalListSortingStrategy}
         >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {mounted && targetZones.map((zone) => (
+            {targetZones.map((zone) => (
               <SortableCard
                 key={zone}
                 zone={zone}
@@ -260,7 +261,7 @@ export const Converter = () => {
             <button
               key={c.zone}
               onClick={() => addTargetZone(c.zone)}
-              disabled={targetZones.includes(c.zone)}
+              disabled={targetZoneSet.has(c.zone)}
               className="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] hover:border-brand hover:text-brand transition-colors font-medium bg-[var(--card-bg)] disabled:opacity-30 disabled:hover:border-[var(--border)] disabled:hover:text-gray-500"
             >
               {c.city}

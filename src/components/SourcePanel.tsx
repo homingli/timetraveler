@@ -1,25 +1,16 @@
 'use client';
 
+import { useHydrated } from '@/hooks/useHydrated';
 import { useTimeContext } from '@/hooks/useTimeContext';
+import { getSupportedTimezones } from '@/lib/timezones';
 import { fromHTMLInput } from '@/lib/timeUtils';
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { TimezoneInput } from './TimezoneInput';
 
 export const SourcePanel = () => {
   const { baseTime, setBaseTime, baseZone, setBaseZone, setIsLive, isLive, now } = useTimeContext();
-  const [mounted, setMounted] = useState(false);
-  const [timezones, setTimezones] = useState<string[]>([]);
-
-  useEffect(() => {
-    setMounted(true);
-    if (typeof Intl !== 'undefined' && (Intl as any).supportedValuesOf) {
-      const tzList = (Intl as any).supportedValuesOf('timeZone');
-      if (!tzList.includes('UTC')) {
-        tzList.unshift('UTC');
-      }
-      setTimezones(tzList);
-    }
-  }, []);
+  const isHydrated = useHydrated();
+  const timezones = useMemo(() => getSupportedTimezones(), []);
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsLive(false);
@@ -42,6 +33,10 @@ export const SourcePanel = () => {
     setIsLive(true);
     setBaseTime(now.setZone(baseZone));
   };
+
+  if (!isHydrated) {
+    return <div className="h-8 w-48" />;
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-3">

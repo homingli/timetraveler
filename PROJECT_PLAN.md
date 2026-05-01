@@ -18,15 +18,19 @@ Phase 1: MVP Core
 [x] Use localStorage to store preset timezone locations
 
 Phase 2: Refinement
-[ ] Write rigorous unit tests for timezone logic and DST edge cases
-[x] Add UI polish: Swap controls, copy-to-clipboard, timezone search/presets, and day boundary indicators
+[x] Add UI polish: Swap controls, copy-to-clipboard, timezone search input, drag-and-drop reordering, GMT offsets, random city buttons, mobile optimization
 [x] Add keyboard shortcut: arrow up/down for moving an hour up or down
-[/] Finalize documentation and deployment configuration for Vercel
+[x] Finalize documentation and deployment configuration for Vercel
+
+Phase 3: Enhancement
+[ ] Add light/dark mode, add toggle for theme changes
+[ ] PWA support for offline use
+[ ] Write rigorous unit tests for timezone logic and DST edge cases
 
 Current Execution Status
-Current Task: Updating documentation (PROJECT_PLAN.md, README.md) and preparing for Vercel deployment.
+Current Task: Completed Phase 2. Ready for Phase 3 features or community feedback.
 
-Recent accomplishment: Completed Phase 2 UI polish including day boundary indicators, keyboard shortcuts, localStorage persistence, swap controls, copy-to-clipboard, timezone presets, and live updating.
+Recent accomplishment: Added drag-and-drop reordering, searchable timezone input, random major city buttons, inline GMT offsets, mobile card actions optimization, and ensured UTC-first ordering.
 
 Blocked By: None.
 

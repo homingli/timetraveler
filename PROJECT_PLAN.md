@@ -25,12 +25,13 @@ Phase 2: Refinement
 Phase 3: Enhancement
 [ ] Add light/dark mode, add toggle for theme changes
 [x] PWA support for offline use
+[x] Optimize client state, timezone lookup, and hydration behavior
 [ ] Write rigorous unit tests for timezone logic and DST edge cases
 
 Current Execution Status
-Current Task: Partially completed Phase 3. PWA support added. Ready for remaining Phase 3 features (Theming and Tests).
+Current Task: Phase 3 remains open for theme toggle and timezone/DST tests. Mobile drag-and-drop validation is complete.
 
-Recent accomplishment: Added PWA support for offline use with Serwist, generated minimalist app icons, and configured manifest for standalone mobile experience. Previously: Added drag-and-drop reordering, searchable timezone input, random major city buttons, inline GMT offsets, and mobile card actions optimization.
+Recent accomplishment: Validated mobile card reordering in the in-app browser at a 653px viewport: dragging UTC below New York updated the order, then the original order was restored. Previously: Optimized the timezone app while maintaining behavior: centralized browser timezone discovery, memoized repeated calculations and handlers, improved localStorage-backed state subscriptions, fixed the Next.js hydration mismatch caused by live clock rendering, and verified lint/build plus clean browser console reload.
 
 Blocked By: None.
 

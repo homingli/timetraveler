@@ -1,8 +1,25 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  ReactNode,
+} from 'react';
 import { DateTime } from 'luxon';
 import { getSystemTimezone } from '@/lib/timeUtils';
+
+const TARGET_ZONES_STORAGE_KEY = 'timetraveler_zones';
+const BASE_ZONE_STORAGE_KEY = 'timetraveler_base_zone';
+const DEFAULT_TARGET_ZONES = ['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo'];
+const STORAGE_EVENT_PREFIX = 'timetraveler-storage';
+
+let cachedTargetZonesRaw: string | null = null;
+let cachedTargetZones = DEFAULT_TARGET_ZONES;
 
 interface TimeContextType {
   now: DateTime;
@@ -20,46 +37,106 @@ interface TimeContextType {
 
 const TimeContext = createContext<TimeContextType | undefined>(undefined);
 
+const isStringArray = (value: unknown): value is string[] => {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+};
+
+const notifyLocalStorageSubscribers = (key: string) => {
+  window.dispatchEvent(new Event(`${STORAGE_EVENT_PREFIX}:${key}`));
+};
+
+const subscribeToLocalStorageKey = (key: string, onStoreChange: () => void) => {
+  const customEvent = `${STORAGE_EVENT_PREFIX}:${key}`;
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === key) {
+      onStoreChange();
+    }
+  };
+
+  window.addEventListener('storage', handleStorage);
+  window.addEventListener(customEvent, onStoreChange);
+
+  return () => {
+    window.removeEventListener('storage', handleStorage);
+    window.removeEventListener(customEvent, onStoreChange);
+  };
+};
+
+const subscribeToTargetZones = (onStoreChange: () => void) => {
+  return subscribeToLocalStorageKey(TARGET_ZONES_STORAGE_KEY, onStoreChange);
+};
+
+const subscribeToBaseZone = (onStoreChange: () => void) => {
+  return subscribeToLocalStorageKey(BASE_ZONE_STORAGE_KEY, onStoreChange);
+};
+
+const getStoredTargetZones = () => {
+  if (typeof window === 'undefined') {
+    return DEFAULT_TARGET_ZONES;
+  }
+
+  const savedZones = window.localStorage.getItem(TARGET_ZONES_STORAGE_KEY);
+  if (!savedZones || savedZones.trim() === '') {
+    cachedTargetZonesRaw = savedZones;
+    cachedTargetZones = DEFAULT_TARGET_ZONES;
+    return DEFAULT_TARGET_ZONES;
+  }
+
+  if (savedZones === cachedTargetZonesRaw) {
+    return cachedTargetZones;
+  }
+
+  try {
+    const parsed = JSON.parse(savedZones);
+    cachedTargetZonesRaw = savedZones;
+    cachedTargetZones = isStringArray(parsed) ? parsed : DEFAULT_TARGET_ZONES;
+    return cachedTargetZones;
+  } catch (error) {
+    console.error('Failed to parse saved timezones', error);
+    cachedTargetZonesRaw = savedZones;
+    cachedTargetZones = DEFAULT_TARGET_ZONES;
+    return DEFAULT_TARGET_ZONES;
+  }
+};
+
+const getStoredBaseZone = () => {
+  if (typeof window === 'undefined') {
+    return getSystemTimezone();
+  }
+
+  return window.localStorage.getItem(BASE_ZONE_STORAGE_KEY) || getSystemTimezone();
+};
+
+const setStoredTargetZones = (zones: string[]) => {
+  const serializedZones = JSON.stringify(zones);
+  cachedTargetZonesRaw = serializedZones;
+  cachedTargetZones = zones;
+  window.localStorage.setItem(TARGET_ZONES_STORAGE_KEY, serializedZones);
+  notifyLocalStorageSubscribers(TARGET_ZONES_STORAGE_KEY);
+};
+
+const setStoredBaseZone = (zone: string) => {
+  window.localStorage.setItem(BASE_ZONE_STORAGE_KEY, zone);
+  notifyLocalStorageSubscribers(BASE_ZONE_STORAGE_KEY);
+};
+
 export const TimeProvider = ({ children }: { children: ReactNode }) => {
   const [now, setNow] = useState<DateTime>(DateTime.now());
   const [baseTime, setBaseTime] = useState<DateTime>(DateTime.now());
-  const [baseZone, setBaseZone] = useState<string>(getSystemTimezone());
-  const [targetZones, setTargetZones] = useState<string[]>(['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo']);
   const [isLive, setIsLive] = useState<boolean>(true);
 
-  // Persistence
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    console.log('TimeProvider: Initializing from localStorage');
-    const savedZones = localStorage.getItem('timetraveler_zones');
-    const savedBaseZone = localStorage.getItem('timetraveler_base_zone');
-    
-    if (savedZones && savedZones.trim() !== '') {
-      try {
-        const parsed = JSON.parse(savedZones);
-        if (Array.isArray(parsed)) {
-          setTargetZones(parsed);
-        }
-      } catch (e) {
-        console.error('Failed to parse saved timezones', e);
-      }
-    }
-    
-    if (savedBaseZone) {
-      setBaseZone(savedBaseZone);
-    }
-  }, []);
+  const targetZones = useSyncExternalStore(
+    subscribeToTargetZones,
+    getStoredTargetZones,
+    () => DEFAULT_TARGET_ZONES
+  );
 
-  useEffect(() => {
-    localStorage.setItem('timetraveler_zones', JSON.stringify(targetZones));
-  }, [targetZones]);
+  const baseZone = useSyncExternalStore(
+    subscribeToBaseZone,
+    getStoredBaseZone,
+    getSystemTimezone
+  );
 
-  useEffect(() => {
-    localStorage.setItem('timetraveler_base_zone', baseZone);
-  }, [baseZone]);
-
-  // Update "now" every second
   useEffect(() => {
     const interval = setInterval(() => {
       const current = DateTime.now();
@@ -72,41 +149,62 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
     return () => clearInterval(interval);
   }, [isLive, baseZone]);
 
-  const addTargetZone = (zone: string) => {
-    if (!targetZones.includes(zone)) {
-      setTargetZones([...targetZones, zone]);
+  const setBaseZone = useCallback((zone: string) => {
+    setStoredBaseZone(zone);
+  }, []);
+
+  const addTargetZone = useCallback((zone: string) => {
+    const currentZones = getStoredTargetZones();
+    if (!currentZones.includes(zone)) {
+      setStoredTargetZones([...currentZones, zone]);
     }
-  };
+  }, []);
 
-  const removeTargetZone = (zone: string) => {
-    setTargetZones(targetZones.filter((z) => z !== zone));
-  };
+  const removeTargetZone = useCallback((zone: string) => {
+    setStoredTargetZones(getStoredTargetZones().filter((currentZone) => currentZone !== zone));
+  }, []);
 
-  const reorderTargetZones = (startIndex: number, endIndex: number) => {
-    setTargetZones((prev) => {
-      const result = Array.from(prev);
-      const [removed] = result.splice(startIndex, 1);
-      result.splice(endIndex, 0, removed);
-      return result;
-    });
-  };
+  const reorderTargetZones = useCallback((startIndex: number, endIndex: number) => {
+    const reorderedZones = Array.from(getStoredTargetZones());
+    const [removed] = reorderedZones.splice(startIndex, 1);
+
+    if (removed === undefined) {
+      return;
+    }
+
+    reorderedZones.splice(endIndex, 0, removed);
+    setStoredTargetZones(reorderedZones);
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      now,
+      baseTime,
+      setBaseTime,
+      baseZone,
+      setBaseZone,
+      targetZones,
+      addTargetZone,
+      removeTargetZone,
+      reorderTargetZones,
+      isLive,
+      setIsLive,
+    }),
+    [
+      now,
+      baseTime,
+      baseZone,
+      setBaseZone,
+      targetZones,
+      addTargetZone,
+      removeTargetZone,
+      reorderTargetZones,
+      isLive,
+    ]
+  );
 
   return (
-    <TimeContext.Provider
-      value={{
-        now,
-        baseTime,
-        setBaseTime,
-        baseZone,
-        setBaseZone,
-        targetZones,
-        addTargetZone,
-        removeTargetZone,
-        reorderTargetZones,
-        isLive,
-        setIsLive,
-      }}
-    >
+    <TimeContext.Provider value={value}>
       {children}
     </TimeContext.Provider>
   );

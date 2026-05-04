@@ -27,8 +27,9 @@ Phase 3: Enhancement
 [x] Optimize client state, timezone lookup, and hydration behavior
 [x] Add light/dark mode, add toggle for theme changes
 [x] Toggle for showing/hiding seconds
-[x] Write rigorous unit tests for timezone logic and DST edge cases
-[x] Write test cases to ensure the drag and drop works on desktop and mobile
+[x] Toggle for 12h/24h time format
+[ ] Write rigorous unit tests for timezone logic and DST edge cases
+[ ] Write test cases to ensure the drag and drop works on desktop and mobile
 
 Phase 4: Security Hardening
 [x] Add baseline security headers (CSP, frame-ancestors, referrer policy, permissions policy)
@@ -36,8 +37,8 @@ Phase 4: Security Hardening
 [x] Track and remediate dependency advisories before release (Next/PostCSS audit follow-up)
 
 Current Execution Status
-Current Task: Implementation complete.
-Recent accomplishment: Completed Phase 4 (Security Hardening). Added baseline security headers in `next.config.ts`, hardened `localStorage` state management with validation and error handling, and remediated the moderate dependency advisory in PostCSS using package overrides. Wrapped browser API calls in safe error handling.
+Current Task: Implementation and documentation complete. Next: Testing.
+Recent accomplishment: Fixed 24h toggle in Converter and updated README.md with latest features.
 
 Blocked By: None.
 

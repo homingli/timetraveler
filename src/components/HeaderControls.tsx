@@ -1,7 +1,7 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { Clock3, Monitor, Moon, Sun } from 'lucide-react';
+import { Clock3, Monitor, Moon, Sun, Hourglass } from 'lucide-react';
 import { useHydrated } from '@/hooks/useHydrated';
 import { useTimeContext } from '@/hooks/useTimeContext';
 
@@ -29,12 +29,13 @@ const getThemeChoice = (theme?: string): ThemeChoice => {
 export const HeaderControls = () => {
   const isHydrated = useHydrated();
   const { theme, setTheme } = useTheme();
-  const { showSeconds, toggleShowSeconds } = useTimeContext();
+  const { showSeconds, toggleShowSeconds, use24h, toggleUse24h } = useTimeContext();
   const currentTheme = getThemeChoice(theme);
   const nextTheme = getNextTheme(currentTheme);
   const themeMeta = THEME_META[currentTheme];
   const ThemeIcon = themeMeta.icon;
   const secondsLabel = showSeconds ? 'Hide seconds' : 'Show seconds';
+  const timeFormatLabel = use24h ? 'Switch to 12h' : 'Switch to 24h';
 
   if (!isHydrated) {
     return <div className="h-8 w-20 flex-shrink-0" />;
@@ -60,6 +61,16 @@ export const HeaderControls = () => {
         aria-pressed={showSeconds}
       >
         <Clock3 size={16} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        onClick={toggleUse24h}
+        className={`icon-button ${use24h ? 'icon-button-active' : ''}`}
+        title={timeFormatLabel}
+        aria-label={timeFormatLabel}
+        aria-pressed={use24h}
+      >
+        <Hourglass size={16} aria-hidden="true" />
       </button>
     </div>
   );

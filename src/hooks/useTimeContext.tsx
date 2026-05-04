@@ -24,9 +24,11 @@ const isValidTimezone = (zone: string): boolean => {
 const TARGET_ZONES_STORAGE_KEY = 'timetraveler_zones';
 const BASE_ZONE_STORAGE_KEY = 'timetraveler_base_zone';
 const SHOW_SECONDS_STORAGE_KEY = 'timetraveler_show_seconds';
+const USE_24H_STORAGE_KEY = 'timetraveler_use_24h';
 const DEFAULT_TARGET_ZONES = ['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo'];
 const STORAGE_EVENT_PREFIX = 'timetraveler-storage';
 const DEFAULT_SHOW_SECONDS = true;
+const DEFAULT_USE_24H = true;
 
 let cachedTargetZonesRaw: string | null = null;
 let cachedTargetZones = DEFAULT_TARGET_ZONES;
@@ -46,6 +48,9 @@ interface TimeContextType {
   showSeconds: boolean;
   setShowSeconds: (showSeconds: boolean) => void;
   toggleShowSeconds: () => void;
+  use24h: boolean;
+  setUse24h: (use24h: boolean) => void;
+  toggleUse24h: () => void;
 }
 
 const TimeContext = createContext<TimeContextType | undefined>(undefined);
@@ -85,6 +90,10 @@ const subscribeToBaseZone = (onStoreChange: () => void) => {
 
 const subscribeToShowSeconds = (onStoreChange: () => void) => {
   return subscribeToLocalStorageKey(SHOW_SECONDS_STORAGE_KEY, onStoreChange);
+};
+
+const subscribeToUse24h = (onStoreChange: () => void) => {
+  return subscribeToLocalStorageKey(USE_24H_STORAGE_KEY, onStoreChange);
 };
 
 const getStoredTargetZones = () => {
@@ -155,6 +164,23 @@ const getStoredShowSeconds = () => {
   }
 };
 
+const getStoredUse24h = () => {
+  if (typeof window === 'undefined') {
+    return DEFAULT_USE_24H;
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(USE_24H_STORAGE_KEY);
+    if (storedValue === null) {
+      return DEFAULT_USE_24H;
+    }
+    return storedValue === 'true';
+  } catch (error) {
+    console.error('Failed to read use 24h preference', error);
+    return DEFAULT_USE_24H;
+  }
+};
+
 const setStoredTargetZones = (zones: string[]) => {
   try {
     const serializedZones = JSON.stringify(zones);
@@ -185,6 +211,15 @@ const setStoredShowSeconds = (showSeconds: boolean) => {
   }
 };
 
+const setStoredUse24h = (use24h: boolean) => {
+  try {
+    window.localStorage.setItem(USE_24H_STORAGE_KEY, String(use24h));
+    notifyLocalStorageSubscribers(USE_24H_STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to save use 24h preference', error);
+  }
+};
+
 export const TimeProvider = ({ children }: { children: ReactNode }) => {
   const [now, setNow] = useState<DateTime>(DateTime.now());
   const [baseTime, setBaseTime] = useState<DateTime>(DateTime.now());
@@ -206,6 +241,12 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
     subscribeToShowSeconds,
     getStoredShowSeconds,
     () => DEFAULT_SHOW_SECONDS
+  );
+
+  const use24h = useSyncExternalStore(
+    subscribeToUse24h,
+    getStoredUse24h,
+    () => DEFAULT_USE_24H
   );
 
   useEffect(() => {
@@ -230,6 +271,14 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleShowSeconds = useCallback(() => {
     setStoredShowSeconds(!getStoredShowSeconds());
+  }, []);
+
+  const setUse24h = useCallback((nextUse24h: boolean) => {
+    setStoredUse24h(nextUse24h);
+  }, []);
+
+  const toggleUse24h = useCallback(() => {
+    setStoredUse24h(!getStoredUse24h());
   }, []);
 
   const addTargetZone = useCallback((zone: string) => {
@@ -271,6 +320,9 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
       showSeconds,
       setShowSeconds,
       toggleShowSeconds,
+      use24h,
+      setUse24h,
+      toggleUse24h,
     }),
     [
       now,
@@ -285,6 +337,9 @@ export const TimeProvider = ({ children }: { children: ReactNode }) => {
       showSeconds,
       setShowSeconds,
       toggleShowSeconds,
+      use24h,
+      setUse24h,
+      toggleUse24h,
     ]
   );
 

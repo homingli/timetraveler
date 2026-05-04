@@ -16,11 +16,16 @@
 4. **Client features need error handling review**
    - Clipboard writes and service worker caching are present, but there is little explicit failure handling or cache-scope policy.
 
+## Recent Updates
+- Added `use24h` toggle to `TimeContext` for AM/PM adjustment.
+- Updated `HeaderControls` to include toggle button.
+- Added baseline security headers in `next.config.ts`.
+- Fixed bug where `use24h` toggle was not reflected in `Converter` cards.
+
 ## Recommended Fix Order
-1. Add security headers in `next.config.ts` (or middleware).
-2. Harden `localStorage` read/write paths with validation and safe fallbacks.
-3. Wrap clipboard and other browser-API calls in user-safe error handling.
-4. Re-run `npm audit`, then update Next when a patched release is available.
+1. Harden `localStorage` read/write paths with validation and safe fallbacks (Partially done).
+2. Wrap clipboard and other browser-API calls in user-safe error handling.
+3. Re-run `npm audit`, then update Next when a patched release is available.
 
 ## Done Criterion
 - No high/critical findings remain.

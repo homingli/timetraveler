@@ -30,6 +30,7 @@ interface SortableCardProps {
   baseTime: DateTime;
   showSeconds: boolean;
   copiedId: string | null;
+  use24h: boolean;
   onSwap: (zone: string) => void;
   onCopy: (timeStr: string, zone: string) => void;
   onRemove: (zone: string) => void;
@@ -69,7 +70,7 @@ const getRandomCities = () => {
   return shuffledCities.slice(0, CITIES_DISPLAY_COUNT_DEFAULT);
 };
 
-const SortableCard = memo(({ zone, baseTime, showSeconds, copiedId, onSwap, onCopy, onRemove }: SortableCardProps) => {
+const SortableCard = memo(({ zone, baseTime, showSeconds, use24h, copiedId, onSwap, onCopy, onRemove }: SortableCardProps) => {
   const {
     attributes,
     listeners,
@@ -87,7 +88,12 @@ const SortableCard = memo(({ zone, baseTime, showSeconds, copiedId, onSwap, onCo
   };
 
   const converted = convertTimezone(baseTime, zone);
-  const timeStr = formatTime(converted, showSeconds ? 'HH:mm:ss' : 'HH:mm');
+  
+  const formatStr = use24h 
+    ? (showSeconds ? 'HH:mm:ss' : 'HH:mm')
+    : (showSeconds ? 'hh:mm:ss a' : 'hh:mm a');
+
+  const timeStr = formatTime(converted, formatStr);
   const hourOffset = getHourOffset(baseTime, zone);
   const offsetStr = hourOffset >= 0 ? `+${hourOffset}h` : `${hourOffset}h`;
   const gmtOffset = Math.round(converted.offset / 60);
@@ -165,7 +171,7 @@ const SortableCard = memo(({ zone, baseTime, showSeconds, copiedId, onSwap, onCo
 SortableCard.displayName = 'SortableCard';
 
 export const Converter = () => {
-  const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, reorderTargetZones, setIsLive, showSeconds } = useTimeContext();
+  const { baseTime, setBaseTime, setBaseZone, targetZones, removeTargetZone, addTargetZone, reorderTargetZones, setIsLive, showSeconds, use24h } = useTimeContext();
   const isHydrated = useHydrated();
   const [newZone, setNewZone] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -244,6 +250,7 @@ export const Converter = () => {
                 zone={zone}
                 baseTime={baseTime}
                 showSeconds={showSeconds}
+                use24h={use24h}
                 copiedId={copiedId}
                 onSwap={handleSwap}
                 onCopy={handleCopy}

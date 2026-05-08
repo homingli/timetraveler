@@ -2,11 +2,12 @@ Vision Statement
 A client-only timezone conversion application designed to provide instant, accurate time comparisons for developers and remote professionals. The app offers a dual-mode interface: a live "now" dashboard and a "selected time" conversion tool, ensuring seamless coordination across international timezones without backend dependency.
 
 System Architecture
-Core Entity: A client-side "TimeContext" state manager that synchronizes current and converted timestamps using IANA timezone definitions.
+The application follows a unidirectional data flow pattern:
 
-Data Flow: User input triggers immediate timezone recalculation via the client-side library; the UI re-renders reactively using Next.js App Router components.
-
-Primary Interfaces: A responsive, minimalist dashboard featuring an auto-updating clock for the local timezone and an interactive form for calculating conversions between arbitrary zones.
+1.  **Input & Trigger:** User interaction (e.g., selecting a timezone, inputting a time) triggers a component event.
+2.  **TimeContext State Manager (Core Entity):** The centralized `TimeContext` state manager captures the user input. It is responsible for managing the primary state: current local time, selected target times, and user preferences.
+3.  **Logic Layer (Luxon):** Upon state update, the system utilizes the Luxon library to perform time zone calculations, handling Daylight Saving Time (DST) and offsets accurately.
+4.  **Output & Rendering:** The calculated data is made available to the Next.js components, which re-render reactively. Primary Interfaces include the live dashboard and the interactive conversion tool.
 
 Roadmap
 Use [x] for finished items, [/] for items currently being worked on, and [ ] for future tasks.
